@@ -34,7 +34,13 @@ app.use(express.json());
 // Rate limiting middleware
 const apiRateLimiter = async (req, res, next) => {
     try {
-        console.log('req.ip', req.ip);
+        const apiKey = req.headers['x-api-key']
+        const userAgent = req.headers['user-agent'];
+        const devideId = req.headers['x-device-id'] 
+        console.log('apiKey', apiKey);
+        console.log('userAgent', userAgent);
+        console.log('devideId', devideId);
+        // console.log('req.ip', req.ip);
         const clientIP = req.ip;
         const rateLimiterRes = await rateLimiter.consume(clientIP);
         console.log('rateLimiterRes', rateLimiterRes);
