@@ -22,7 +22,7 @@ redis.on('error', (err) => {
 const rateLimiter = new RateLimiterRedis({
     storeClient: redis,
     points: 10,         
-    duration: 60,       
+    duration: 20,       
     keyPrefix: 'api',   
     blockDuration: 60   
 });
@@ -34,7 +34,7 @@ app.use(express.json());
 // Rate limiting middleware
 const apiRateLimiter = async (req, res, next) => {
     try {
-        console.log('req.ip',req.ip)
+        console.log('req.ip', req.ip);
         const clientIP = req.ip;
         const rateLimiterRes = await rateLimiter.consume(clientIP);
         console.log('rateLimiterRes', rateLimiterRes);
@@ -46,6 +46,7 @@ const apiRateLimiter = async (req, res, next) => {
 
         next();
     } catch (rateLimiterRes) {
+        console.log('rateLimiterRes error', rateLimiterRes);
         res.set({
             'X-RateLimit-Limit': 10,
             'X-RateLimit-Remaining': rateLimiterRes.remainingPoints,
