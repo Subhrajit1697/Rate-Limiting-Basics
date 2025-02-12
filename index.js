@@ -42,6 +42,7 @@ const apiRateLimiter = async (req, res, next) => {
         console.log('devideId', devideId);
         // console.log('req.ip', req.ip);
         const clientIP = req.ip;
+        console.log('clientIP', clientIP);
         const rateLimiterRes = await rateLimiter.consume(clientIP);
         console.log('rateLimiterRes', rateLimiterRes);
         res.set({
@@ -66,8 +67,8 @@ const apiRateLimiter = async (req, res, next) => {
         });
     }
 };
-
-app.get('/api/data', apiRateLimiter, (req, res) => {
+app.use(apiRateLimiter);
+app.get('/api/data', (req, res) => {
     res.json({
         success: true,
         data: {
