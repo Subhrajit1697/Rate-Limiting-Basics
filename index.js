@@ -22,9 +22,9 @@ redis.on('error', (err) => {
 const rateLimiter = new RateLimiterRedis({
     storeClient: redis,
     points: 10,         
-    duration: 20,       
-    keyPrefix: 'api',   
-    blockDuration: 60   
+    duration: 30,       
+    keyPrefix: 'ip',   
+    blockDuration: 30,   
 });
 
 app.set('trust proxy', true); // this is for rate limiter to work with proxy
@@ -34,15 +34,8 @@ app.use(express.json());
 // Rate limiting middleware
 const apiRateLimiter = async (req, res, next) => {
     try {
-        const apiKey = req.headers['x-api-key']
-        const userAgent = req.headers['user-agent'];
-        const devideId = req.headers['x-device-id'] 
-        console.log('apiKey', apiKey);
-        console.log('userAgent', userAgent);
-        console.log('devideId', devideId);
-        // console.log('req.ip', req.ip);
         const clientIP = req.ip;
-        console.log('clientIP', clientIP);
+        // console.log('clientIP', clientIP); // if multiple user is coonected to same network, then it will show same ip address
         const rateLimiterRes = await rateLimiter.consume(clientIP);
         console.log('rateLimiterRes', rateLimiterRes);
         res.set({
@@ -67,8 +60,8 @@ const apiRateLimiter = async (req, res, next) => {
         });
     }
 };
-app.use(apiRateLimiter);
-app.get('/api/data', (req, res) => {
+
+app.get('/api/data', apiRateLimiter, (req, res) => {
     res.json({
         success: true,
         data: {
